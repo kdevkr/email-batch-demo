@@ -2,9 +2,9 @@ spring.application.name: email-demo
 spring.main.banner-mode: off
 
 spring.mail:
-  from: [??? ?? ??]
-  username: [Amazon SES SMTP ???? ??]
-  password: [Amazon SES SMTP ???? ??]
+  from: '[??? ?? ??]'
+  username: '[Amazon SES SMTP ???? ??]'
+  password: '[Amazon SES SMTP ???? ??]'
   host: 'email-smtp.ap-northeast-2.amazonaws.com'
   port: 587
   properties:

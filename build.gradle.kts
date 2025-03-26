@@ -29,7 +29,6 @@ dependencies {
     implementation("org.simplejavamail:simple-java-mail:8.12.5")
     implementation("org.simplejavamail:spring-module:8.12.5")
     implementation("org.simplejavamail:batch-module:8.12.5")
-    implementation("org.simplejavamail:smtp-connection-pool:2.3.5")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
