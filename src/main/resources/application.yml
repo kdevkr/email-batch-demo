@@ -17,3 +17,4 @@ simplejavamail:
   smtp.port: 587
   smtp.username: ${spring.mail.username}
   smtp.password: ${spring.mail.password}
+  'defaults.connectionpool.loadbalancing.strategy': ROUND_ROBIN
