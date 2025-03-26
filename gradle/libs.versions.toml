@@ -1,0 +1,14 @@
+[versions]
+simplejavamail = "8.12.5"
+
+[libraries]
+simplejavamail = { module = "org.simplejavamail:simple-java-mail", version.ref = "simplejavamail" }
+simplejavamail-spring-module = { module = "org.simplejavamail:spring-module", version.ref = "simplejavamail" }
+simplejavamail-batch-module = { module = "org.simplejavamail:batch-module", version.ref = "simplejavamail" }
+
+[bundles]
+simplejavamail = [
+    "simplejavamail",
+    "simplejavamail-spring-module",
+    "simplejavamail-batch-module"
+]

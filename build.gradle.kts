@@ -26,9 +26,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.simplejavamail:simple-java-mail:8.12.5")
-    implementation("org.simplejavamail:spring-module:8.12.5")
-    implementation("org.simplejavamail:batch-module:8.12.5")
+    implementation(libs.bundles.simplejavamail)
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
