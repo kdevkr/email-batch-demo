@@ -12,9 +12,8 @@ spring.mail:
     mail.smtp.starttls.enable: true
 
 simplejavamail:
+  transportstrategy: SMTP_TLS
   smtp.host: ${spring.mail.host}
-  simplejavamail:
-    transportstrategy: SMTP_TLS
-    smtp.port: 587
-    smtp.username: ${spring.mail.username}
-    smtp.password: ${spring.mail.password}
+  smtp.port: 587
+  smtp.username: ${spring.mail.username}
+  smtp.password: ${spring.mail.password}
