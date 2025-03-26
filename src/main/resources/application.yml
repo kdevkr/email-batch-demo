@@ -1,0 +1,20 @@
+spring.application.name: email-demo
+spring.main.banner-mode: off
+
+spring.mail:
+  from: [??? ?? ??]
+  username: [Amazon SES SMTP ???? ??]
+  password: [Amazon SES SMTP ???? ??]
+  host: 'email-smtp.ap-northeast-2.amazonaws.com'
+  port: 587
+  properties:
+    mail.smtp.ssl.enable: false
+    mail.smtp.starttls.enable: true
+
+simplejavamail:
+  smtp.host: ${spring.mail.host}
+  simplejavamail:
+    transportstrategy: SMTP_TLS
+    smtp.port: 587
+    smtp.username: ${spring.mail.username}
+    smtp.password: ${spring.mail.password}
