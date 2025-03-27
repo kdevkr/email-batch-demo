@@ -1,7 +1,9 @@
 package kr.kdev.demo;
 
+import com.google.common.util.concurrent.RateLimiter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.simplejavamail.MailException;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
@@ -33,26 +35,48 @@ class DemoApplicationTests {
     }
 
     @Test
-    void givenTo_whenSend_thenSuccess() {
-        int max = 25;
-        EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
+    void givenTooManyRecipients_whenSendMail_thenThrowErrors() {
+        String[] addresses = IntStream.rangeClosed(1, 51)
+                .mapToObj(i -> toFormat.formatted(i))
+                .toList()
+                .toArray(String[]::new);
+
+        Email email = EmailBuilder.startingBlank()
                 .from(from)
-                .withSubject("Test email")
-                .withPlainText("This is test mail for batch performance");
+                .toMultiple(addresses)
+                .withSubject("Test!!!")
+                .withPlainText("This is test mail")
+                .buildEmail();
+
+        // NOTE: Caused by: org.eclipse.angus.mail.smtp.SMTPSendFailedException: 554 Transaction failed: Recipient count exceeds 50.
+        MailException exception = Assertions.assertThrows(MailException.class, () -> mailer.sendMail(email));
+        exception.printStackTrace();
+    }
+
+    @Test
+    void givenTo_whenSend_thenSuccess() {
+        int max = 100;
+        RateLimiter rateLimiter = RateLimiter.create(10.0); // NOTE: sending limits
+
         CountDownLatch latch = new CountDownLatch(max);
         IntStream.rangeClosed(1, max)
                 .parallel().forEach(i -> {
-                    Email email = builder.to(toFormat.formatted(i)).buildEmail();
+                    rateLimiter.acquire();
+                    EmailPopulatingBuilder builder = EmailBuilder.startingBlank()
+                            .from(from)
+                            .withSubject("Test email")
+                            .withPlainText("This is test mail for batch performance");
+                    Email email = builder.clearOverrideReceivers()
+                            .to(toFormat.formatted(i)).buildEmail();
                     mailer.sendMail(email, true);
-                    try {
-                        Thread.sleep(Duration.ofSeconds(5L).toMillis());
-                        latch.countDown();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    System.out.println("Sent email to " + i);
+                    latch.countDown();
                 });
 
-        Assertions.assertDoesNotThrow(() -> latch.await());
+        Assertions.assertDoesNotThrow(() -> {
+            latch.await();
+            Thread.sleep(Duration.ofSeconds(5).toMillis());
+        });
         mailer.shutdownConnectionPool();
     }
 
