@@ -2,6 +2,7 @@ package kr.kdev.demo;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import com.google.common.util.concurrent.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.MailException;
@@ -23,6 +24,7 @@ public class SimpleMailQueue {
     private final Mailer mailer;
     private final BlockingQueue<Email> queue = Queues.newLinkedBlockingDeque();
     private final Map<Integer, Integer> retryCount = Maps.newConcurrentMap();
+    private final RateLimiter rateLimiter = RateLimiter.create(10.0);
 
     public void produce(Email email) {
         queue.add(email);
@@ -35,17 +37,21 @@ public class SimpleMailQueue {
         }
 
         List<Email> emails = new LinkedList<>();
-        queue.drainTo(emails, 10);
+        queue.drainTo(emails, 100);
 
-        for (Email email : emails) {
-            try {
-                mailer.sendMail(email);
-                log.info("Message-ID: {}", email.getId());
-            } catch (MailException e) {
-                log.error("Failed to send email: {}", e.getMessage());
-                handleEmailSendFailure(email);
+        emails.stream().parallel().forEach(email -> {
+            if (rateLimiter.tryAcquire()) {
+                try {
+                    mailer.sendMail(email);
+                    log.info("Message-ID: {}", email.getId());
+                } catch (MailException e) {
+                    log.error("Failed to send email: {}", e.getMessage());
+                    handleEmailSendFailure(email);
+                }
+            } else {
+                queue.add(email);
             }
-        }
+        });
     }
 
     private void handleEmailSendFailure(Email email) {
